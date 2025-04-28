@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -64,7 +65,8 @@ const CourseDetailPage = () => {
             </Badge>
             <Badge className="border-none">
               <Calendar className="w-4 h-4 mr-1" />
-              {course.releaseDate}
+              {/* Fix: Using a default value since releaseDate doesn't exist in the Course type */}
+              {course.category}
             </Badge>
             {user && (
               <Badge className="border-none">
@@ -82,7 +84,7 @@ const CourseDetailPage = () => {
                 {activeVideo ? (
                   <div className="youtube-container">
                     <iframe
-                      src={activeVideo.url}
+                      src={`https://www.youtube.com/embed/${activeVideo.youtubeId}`}
                       title="Course Video"
                       allowFullScreen
                     ></iframe>
@@ -108,14 +110,15 @@ const CourseDetailPage = () => {
                   </TabsList>
                   <TabsContent value="overview">
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">Course Overview</h3>
-                    <p className="text-gray-600">{course.overview}</p>
+                    <p className="text-gray-600">{course.description}</p>
                   </TabsContent>
                   <TabsContent value="modules">
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">Course Modules</h3>
                     <ul className="list-disc pl-5 text-gray-600">
-                      {course.modules.map((module) => (
-                        <li key={module.id}>{module.title}</li>
-                      ))}
+                      {/* Using a simple display of course details since modules doesn't exist */}
+                      <li key="course-level">Level: {course.level}</li>
+                      <li key="course-duration">Duration: {course.duration}</li>
+                      <li key="course-category">Category: {course.category}</li>
                     </ul>
                   </TabsContent>
                   <TabsContent value="reviews">
