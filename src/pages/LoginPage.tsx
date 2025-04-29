@@ -8,6 +8,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/context/AuthContext";
 import { z } from "zod";
+import { toast } from "sonner";
 
 // Define the login form schema
 const loginSchema = z.object({
@@ -28,6 +29,7 @@ const LoginPage = () => {
 
   const [errors, setErrors] = useState<Partial<LoginFormData>>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -36,12 +38,17 @@ const LoginPage = () => {
       [name]: value
     }));
 
-    // Clear error when user starts typing
+    // Clear errors when user starts typing
     if (errors[name as keyof LoginFormData]) {
       setErrors((prev) => ({
         ...prev,
         [name]: undefined
       }));
+    }
+    
+    // Clear auth error when user makes any changes
+    if (authError) {
+      setAuthError(null);
     }
   };
 
@@ -72,11 +79,16 @@ const LoginPage = () => {
     }
 
     setIsLoading(true);
+    setAuthError(null);
+    
     try {
       await login(formData.email, formData.password);
       navigate("/dashboard");
-    } catch (error) {
+      toast("Welcome back! You're now logged in.");
+    } catch (error: any) {
       console.error("Login error:", error);
+      setAuthError(error.message || "Failed to login. Please check your credentials.");
+      toast.error(error.message || "Login failed. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -98,6 +110,12 @@ const LoginPage = () => {
               </Link>
             </p>
           </div>
+          
+          {authError && (
+            <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+              {authError}
+            </div>
+          )}
           
           <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
             <div className="space-y-4 rounded-md">

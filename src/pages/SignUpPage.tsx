@@ -9,6 +9,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/context/AuthContext";
 import { z } from "zod";
+import { toast } from "sonner";
 
 // Define the signup form schema
 const signupSchema = z.object({
@@ -33,6 +34,7 @@ const SignUpPage = () => {
 
   const [errors, setErrors] = useState<Partial<SignupFormData>>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -48,6 +50,11 @@ const SignUpPage = () => {
         [name]: undefined
       }));
     }
+    
+    // Clear auth error when user makes any changes
+    if (authError) {
+      setAuthError(null);
+    }
   };
 
   const handleEducationChange = (value: string) => {
@@ -62,6 +69,11 @@ const SignUpPage = () => {
         ...prev,
         education: undefined
       }));
+    }
+    
+    // Clear auth error when user makes any changes
+    if (authError) {
+      setAuthError(null);
     }
   };
 
@@ -92,11 +104,16 @@ const SignUpPage = () => {
     }
 
     setIsLoading(true);
+    setAuthError(null);
+    
     try {
       await signup(formData.name, formData.email, formData.password, formData.education);
+      toast.success("Account created successfully!");
       navigate("/dashboard");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Signup error:", error);
+      setAuthError(error.message || "Failed to create account.");
+      toast.error(error.message || "Signup failed. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -118,6 +135,12 @@ const SignUpPage = () => {
               </Link>
             </p>
           </div>
+          
+          {authError && (
+            <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+              {authError}
+            </div>
+          )}
           
           <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
             <div className="space-y-4 rounded-md">
