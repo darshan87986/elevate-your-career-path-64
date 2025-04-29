@@ -83,8 +83,9 @@ const LoginPage = () => {
     
     try {
       await login(formData.email, formData.password);
+      toast.success("Welcome back! You're now logged in.");
+      // Ensure navigation happens after successful login
       navigate("/dashboard");
-      toast("Welcome back! You're now logged in.");
     } catch (error: any) {
       console.error("Login error:", error);
       setAuthError(error.message || "Failed to login. Please check your credentials.");

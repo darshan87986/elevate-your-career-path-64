@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -45,16 +44,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Set up auth state listener
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
           async (event, session) => {
+            console.log("Auth state changed:", event, session?.user?.id);
             if (session?.user) {
               // Fetch profile data
-              const { data: profile } = await supabase
+              const { data: profile, error } = await supabase
                 .from('profiles')
                 .select('*')
                 .eq('id', session.user.id)
                 .single();
                 
               if (profile) {
+                console.log("Profile data fetched:", profile);
                 setUser(profile);
+              } else {
+                console.error("Profile fetch error:", error);
+                setUser(null);
               }
             } else {
               setUser(null);
@@ -65,15 +69,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Check for existing session
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) {
+          console.log("Existing session found:", session.user.id);
           // Fetch profile data
-          const { data: profile } = await supabase
+          const { data: profile, error } = await supabase
             .from('profiles')
             .select('*')
             .eq('id', session.user.id)
             .single();
             
           if (profile) {
+            console.log("Initial profile data:", profile);
             setUser(profile);
+          } else {
+            console.error("Initial profile fetch error:", error);
           }
         }
 
@@ -95,18 +103,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       setIsLoading(true);
       
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
       });
       
       if (error) {
+        console.error("Login error:", error);
         throw error;
       }
       
-      toast("Logged in successfully");
+      if (!data.user || !data.session) {
+        throw new Error("Failed to get user data after login");
+      }
+      
+      console.log("Login successful:", data.user.id);
+      
+      return data;
     } catch (error: any) {
-      toast("Login failed: " + (error.message || "Unknown error occurred"));
+      console.error("Login function error:", error);
       throw error;
     } finally {
       setIsLoading(false);
