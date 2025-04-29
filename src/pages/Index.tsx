@@ -8,7 +8,9 @@ const Index = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    console.log("Index page - Auth state:", { isAuthenticated, isLoading });
     if (isAuthenticated && !isLoading) {
+      console.log("Redirecting to dashboard from index page");
       navigate('/dashboard');
     }
   }, [isAuthenticated, isLoading, navigate]);

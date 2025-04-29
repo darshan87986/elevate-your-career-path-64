@@ -120,7 +120,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       console.log("Login successful:", data.user.id);
       
-      // We're no longer returning data - just make this function async/void
+      // Don't return anything - this function is Promise<void>
     } catch (error: any) {
       console.error("Login function error:", error);
       throw error;
@@ -130,7 +130,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   // Signup functionality using Supabase Auth
-  const signup = async (name: string, email: string, password: string, education: string) => {
+  const signup = async (name: string, email: string, password: string, education: string): Promise<void> => {
     try {
       setIsLoading(true);
       

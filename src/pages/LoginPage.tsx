@@ -20,7 +20,7 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, isAuthenticated } = useAuth();
 
   const [formData, setFormData] = useState<LoginFormData>({
     email: "",
@@ -82,10 +82,15 @@ const LoginPage = () => {
     setAuthError(null);
     
     try {
+      console.log("Attempting login with:", formData.email);
       await login(formData.email, formData.password);
+      console.log("Login success, redirecting to dashboard");
       toast.success("Welcome back! You're now logged in.");
-      // Ensure navigation happens after successful login
-      navigate("/dashboard");
+      
+      // Add a small delay before navigating to ensure state updates
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 100);
     } catch (error: any) {
       console.error("Login error:", error);
       setAuthError(error.message || "Failed to login. Please check your credentials.");
@@ -94,6 +99,13 @@ const LoginPage = () => {
       setIsLoading(false);
     }
   };
+
+  // If user is already authenticated, redirect to dashboard
+  if (isAuthenticated) {
+    console.log("User is already authenticated, redirecting to dashboard");
+    navigate('/dashboard');
+    return null;
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
